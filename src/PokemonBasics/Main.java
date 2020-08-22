@@ -1,7 +1,8 @@
 package PokemonBasics;
-import Graphics.Window;
+import Graphics.*;
 import java.util.Calendar;
 import java.util.Date;
+
 
 
 public class Main {
@@ -89,7 +90,12 @@ public class Main {
         }
     }
 
+    //-XstartOnFirstThread as VM option
     public static void main(String[] args){
+
+
+
+
         System.out.println(timeOfDay());
         new Window().run();
     }

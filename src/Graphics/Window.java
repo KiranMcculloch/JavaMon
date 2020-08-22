@@ -3,6 +3,8 @@ package Graphics;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
+
+import java.awt.image.BufferedImage;
 import java.nio.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -78,6 +80,10 @@ public class Window {
 
         // Make the window visible
         glfwShowWindow(window);
+
+        glfwMakeContextCurrent(window);
+
+        GL.createCapabilities();
     }
 
     private void loop() {
@@ -89,17 +95,63 @@ public class Window {
         GL.createCapabilities();
 
         // Set the clear color
-        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        glEnable(GL_TEXTURE_2D);
+
+        BufferedImage image = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Back/637.png");
+        int sprite = Graphics.TextureLoader.loadTexture(image);
+
+        BufferedImage image2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/646.png");
+        int spriteOpp = Graphics.TextureLoader.loadTexture(image2);
+        float i = -1.0f;
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+            if (i <= -0.2f){
+                i += 0.02f;
+            }
 
-            glfwSwapBuffers(window); // swap the color buffers
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
+
+
+            glBindTexture(GL_TEXTURE_2D, sprite);
+            glBegin(GL_QUADS);
+
+                    glTexCoord2f(1,0);
+                        glVertex2f(i,0.2f);
+                    glTexCoord2f(1,1);
+                        glVertex2f(i,-0.5f);
+                    glTexCoord2f(0,1);
+                        glVertex2f(i-0.5f,-0.5f);
+                    glTexCoord2f(0,0);
+                        glVertex2f(i-0.5f,0.2f);
+                glEnd();
+
+
+            glBindTexture(GL_TEXTURE_2D, spriteOpp);
+            glBegin(GL_QUADS);
+
+                glTexCoord2f(1,0);
+                    glVertex2f(0.5f,0.6f);
+                glTexCoord2f(1,1);
+                    glVertex2f(0.5f,-0.1f);
+                glTexCoord2f(0,1);
+                    glVertex2f(0,-0.1f);
+                glTexCoord2f(0,0);
+                    glVertex2f(0,0.6f);
+            glEnd();
+
+
+
+
+            glfwSwapBuffers(window); // swap the color buffers
+
+
         }
     }
 
