@@ -8,8 +8,10 @@ import java.util.Date;
 public class Main {
     static Pokemon[] party = new PokemonBasics.Pokemon[6];
     static Item[] itemBag = new Item[950];
-    //[box][spot in box]
-    static Pokemon[][] storageSystem = new Pokemon[36][30];
+    // [box][spot in box]
+    // static Pokemon[][] storageSystem = new Pokemon[36][30];
+    // public static int gameMode = 0;
+    //0 = overworld, 1 = battle, 2 = menu
 
     public static void switchPokemon(int original, int newSlot){
         Pokemon temp = party[original];
@@ -33,18 +35,18 @@ public class Main {
         }
     }
 
-    public static void addToPC(int partySlot){
-        for (int i = 0; i<36; i++){
-            for (int j = 0; j<30; j++){
-                if (storageSystem[i][j] == null){
-                    storageSystem[i][j] = party[partySlot];
-                }
-            }
-        }
-    }
-
-    public static void addToPC(int partySlot, int box, int pcSlot) {
-    }
+//    public static void addToPC(int partySlot){
+//        for (int i = 0; i<36; i++){
+//            for (int j = 0; j<30; j++){
+//                if (storageSystem[i][j] == null){
+//                    storageSystem[i][j] = party[partySlot];
+//                }
+//            }
+//        }
+//    }
+//
+//    public static void addToPC(int partySlot, int box, int pcSlot) {
+//    }
 
 
     public static void addToParty(Pokemon pokemon){
@@ -72,22 +74,18 @@ public class Main {
         return (hour*100)+minutes;
     }
 
-    public static void battle(Trainer opponent){
-            Pokemon currentMon = party[0];
-            Pokemon currentOpponentMon = opponent.party[0];
+    public static void battle(Trainer opponent) {
+        Pokemon currentMon = party[0];
+        Pokemon currentOpponentMon = opponent.party[0];
 
-            //main turn loop
-            while (opponent.canBattle()){
+        //main turn loop
+        while (opponent.canBattle()) {
 
-            }
+        }
     }
 
     public static void battle(Pokemon opponent){
 
-        //main turn loop
-        while (!opponent.isDead()){
-
-        }
     }
 
     //-XstartOnFirstThread as VM option
