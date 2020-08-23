@@ -17,8 +17,6 @@ import static org.lwjgl.opengl.GL11.*;
 public class TextureLoader {
     private static final int BYTES_PER_PIXEL = 4;//3 for RGB, 4 for RGBA
     public static int loadTexture(BufferedImage image){
-        System.out.println(image.getWidth());
-        System.out.println(image.getHeight());
         int[] pixels = new int[image.getWidth() * image.getHeight()];
         image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 
@@ -63,7 +61,6 @@ public class TextureLoader {
 
         try{
             URL url = Paths.get(loc).toUri().toURL();
-            System.out.println(url);
             try {
                 return ImageIO.read(url);
             } catch (IOException e) {
@@ -74,5 +71,19 @@ public class TextureLoader {
             System.out.println("uh oh");
         }
         return null;
+    }
+
+    public static void FullScreen(int image){
+        glBindTexture(GL_TEXTURE_2D, image);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0,1);
+        glVertex2f(-1,-1);
+        glTexCoord2f(0,0);
+        glVertex2f(-1,1);
+        glTexCoord2f(1,0);
+        glVertex2f(1,1);
+        glTexCoord2f(1,1);
+        glVertex2f(1,-1);
+        glEnd();
     }
 }

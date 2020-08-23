@@ -90,11 +90,6 @@ public class Main {
 
     //-XstartOnFirstThread as VM option
     public static void main(String[] args){
-
-
-
-
-        System.out.println(timeOfDay());
         new Window().run();
     }
 

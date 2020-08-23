@@ -1,6 +1,7 @@
 package Graphics;
 
 import PokemonBasics.Main;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
@@ -12,16 +13,46 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
+import java.util.Random;
 
 
 public class Window {
     // The window handle
-    private long window;
+    private static long window;
     public static State state = State.INTRO;
+    static DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
+    static DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
+    Random rg = new Random();
+    int rando1 = 1,rando2=2, rando3 =3 ,rando4=4,rando5=5,rando6=6;
+    int slotSelected = 1;
+
 
     public enum State {
-        INTRO, GAME, MAIN_MENU;
+        INTRO, MAIN_MENU, BATTLE_SELECT, TEAM_BUILDER, EDITOR, OPTIONS, BATTLE, POKEMON_SELECTOR, PC;
     }
+
+    //top left and bottom right coords
+    public static boolean mouseWithin(double x1, double y1, double x2, double y2){
+        glfwGetCursorPos(window, xBuffer, yBuffer);
+        double mouseX = xBuffer.get(0);
+        double mouseY = yBuffer.get(0);
+        if (mouseX >= x1 && mouseX <= x2){
+            if (mouseY >= y1 && mouseY <= y2){
+                return true;
+            }
+        }
+        return false;
+    }
+    public static void mouseNormal(){
+        glfwGetCursorPos(window, xBuffer, yBuffer);
+        double mouseX = xBuffer.get(0);
+        double mouseY = yBuffer.get(0);
+        double normalizedX = -1.0 + 2.0 * mouseX / 1280;
+        double normalizedY = 1.0 - 2.0 * mouseY / 720;
+        System.out.println("("+normalizedX+","+normalizedY+")");
+    }
+
+
 
     public void run() {
         init();
@@ -47,7 +78,8 @@ public class Window {
         // Configure GLFW
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // the window will be resizable
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // the window will not be resizable
+
 
         // Create the window
         window = glfwCreateWindow(1280, 720, "Pokéclone", NULL, NULL);
@@ -60,15 +92,52 @@ public class Window {
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
             }
             if (key == GLFW_KEY_ENTER && action == GLFW_RELEASE){
-                if (state == State.INTRO){
-                    state = State.MAIN_MENU;
-                }else if (state == State.MAIN_MENU){
-                    state = State.GAME;
+                switch(state){
+                    case INTRO:
+                        state = State.MAIN_MENU;
+                        break;
+                    case TEAM_BUILDER:
+                        rando1 = rg.nextInt(802) +1;
+                        rando2 = rg.nextInt(802) +1;
+                        rando3 = rg.nextInt(802) +1;
+                        rando4 = rg.nextInt(802) +1;
+                        rando5 = rg.nextInt(802) +1;
+                        rando6 = rg.nextInt(802) +1;
+                        break;
+                    case MAIN_MENU:
+                        state = State.TEAM_BUILDER;
+                        break;
                 }
             }
         });
 
-
+        glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
+            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
+                mouseNormal();
+                switch(state){
+                    case TEAM_BUILDER:
+                        if (mouseWithin(230,50,468,280)){
+                            System.out.println("1");
+                            slotSelected = 1;
+                        }else if (mouseWithin(510,50,748,280)){
+                            System.out.println("2");
+                            slotSelected = 2;
+                        }else if (mouseWithin(790,50,1028,280)){
+                            System.out.println("3");
+                            slotSelected = 3;
+                        }else if (mouseWithin(230,379,468,609)){
+                            System.out.println("4");
+                            slotSelected = 4;
+                        }else if (mouseWithin(510,379,748,609)){
+                            System.out.println("5");
+                            slotSelected = 5;
+                        } else if (mouseWithin(790,379,1028,609)){
+                            System.out.println("6");
+                            slotSelected = 6;
+                        }
+                }
+            }
+        });
 
 
         // Get the thread stack and push a new frame
@@ -103,6 +172,14 @@ public class Window {
         GL.createCapabilities();
     }
 
+
+
+
+
+
+
+
+
     private void loop() {
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
@@ -112,33 +189,200 @@ public class Window {
         GL.createCapabilities();
 
         // Set the clear color
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
         glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-        float i = -1.0f;
+        float pokemonAnim = -1.0f;
         int j  = 1;
+
+        BufferedImage mm = Graphics.TextureLoader.loadImage("src/Graphics/mainmenu.png");
+        int main_menu = Graphics.TextureLoader.loadTexture(mm);
+        BufferedImage op = Graphics.TextureLoader.loadImage("src/Graphics/options.png");
+        int options = Graphics.TextureLoader.loadTexture(op);
+        BufferedImage ed = Graphics.TextureLoader.loadImage("src/Graphics/pokemoneditor.png");
+        int pokemon_editor = Graphics.TextureLoader.loadTexture(ed);
+        BufferedImage se = Graphics.TextureLoader.loadImage("src/Graphics/teambuilder.png");
+        int team_builder = Graphics.TextureLoader.loadTexture(se);
+        BufferedImage ti = Graphics.TextureLoader.loadImage("src/Graphics/title.png");
+        int title_screen = Graphics.TextureLoader.loadTexture(ti);
+        BufferedImage tr = Graphics.TextureLoader.loadImage("src/Graphics/tree.png");
+        int battle_select = Graphics.TextureLoader.loadTexture(tr);
+        BufferedImage party1 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
+        int party1Sprite = Graphics.TextureLoader.loadTexture(party1);
+        BufferedImage party2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
+        int party2Sprite = Graphics.TextureLoader.loadTexture(party2);
+        BufferedImage party3 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
+        int party3Sprite = Graphics.TextureLoader.loadTexture(party3);
+        BufferedImage party4 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
+        int party4Sprite = Graphics.TextureLoader.loadTexture(party4);
+        BufferedImage party5 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
+        int party5Sprite = Graphics.TextureLoader.loadTexture(party5);
+        BufferedImage party6 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
+        int party6Sprite = Graphics.TextureLoader.loadTexture(party6);
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window)) {
-
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
             glfwPollEvents();
 
-
-
             switch (state) {
                 case INTRO:
-                    glColor3f(1.0f, 0.0f, 0.0f);
-                    glRectf(0, 0, 640, 480);
+                    TextureLoader.FullScreen(title_screen);
                     break;
+
+
+
                 case MAIN_MENU:
-                    glColor3f(0.0f, 0.0f, 1.0f);
-                    glRectf(0, 0, 640, 480);
+                    TextureLoader.FullScreen(main_menu);
                     break;
-                case GAME:
+
+
+
+                case OPTIONS:
+                    TextureLoader.FullScreen(options);
+                    break;
+
+
+
+                case TEAM_BUILDER:
+
+                    party1 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando1+".png");
+                    party1Sprite = party1Sprite = Graphics.TextureLoader.loadTexture(party1);
+
+                    party2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando2+".png");
+                    party2Sprite = party2Sprite = Graphics.TextureLoader.loadTexture(party2);
+
+                    party3 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando3+".png");
+                    party3Sprite = party3Sprite = Graphics.TextureLoader.loadTexture(party3);
+
+                    party4 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando4+".png");
+                    party4Sprite = party4Sprite = Graphics.TextureLoader.loadTexture(party4);
+
+                    party5 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando5+".png");
+                    party5Sprite = party5Sprite = Graphics.TextureLoader.loadTexture(party5);
+
+                    party6 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando6+".png");
+                    party6Sprite = party6Sprite = Graphics.TextureLoader.loadTexture(party6);
+
+                    TextureLoader.FullScreen(team_builder);
+
+                    glBindTexture(GL_TEXTURE_2D, party1Sprite);
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0,0);
+                    glVertex2f(-0.607f,0.860f);
+                        glTexCoord2f(1,0);
+                    glVertex2f(-0.261f,0.860f);
+                        glTexCoord2f(1,1);
+                    glVertex2f(-0.261f,0.277f);
+                        glTexCoord2f(0,1);
+                    glVertex2f(-0.607f,0.277f);
+                    glEnd();
+
+                    glBindTexture(GL_TEXTURE_2D, party2Sprite);
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0,0);
+                    glVertex2f(-0.171f,0.860f);
+                        glTexCoord2f(1,0);
+                    glVertex2f(0.177f,0.860f);
+                        glTexCoord2f(1,1);
+                    glVertex2f(0.177f,0.277f);
+                        glTexCoord2f(0,1);
+                    glVertex2f(-0.171f,0.277f);
+                    glEnd();
+
+                    glBindTexture(GL_TEXTURE_2D, party3Sprite);
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0,0);
+                    glVertex2f(0.266f,0.860f);
+                        glTexCoord2f(1,0);
+                    glVertex2f(0.614f,0.860f);
+                        glTexCoord2f(1,1);
+                    glVertex2f(0.614f,0.277f);
+                        glTexCoord2f(0,1);
+                    glVertex2f(0.266f,0.277f);
+                    glEnd();
+
+                    glBindTexture(GL_TEXTURE_2D, party4Sprite);
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0,0);
+                    glVertex2f(-0.607f,-0.0538f);
+                        glTexCoord2f(1,0);
+                    glVertex2f(-0.261f,-0.0538f);
+                        glTexCoord2f(1,1);
+                    glVertex2f(-0.261f,-0.639f);
+                        glTexCoord2f(0,1);
+                    glVertex2f(-0.607f,-0.639f);
+                    glEnd();
+
+                    glBindTexture(GL_TEXTURE_2D, party5Sprite);
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0,0);
+                    glVertex2f(-0.171f,-0.0538f);
+                        glTexCoord2f(1,0);
+                    glVertex2f(0.177f,-0.0538f);
+                        glTexCoord2f(1,1);
+                    glVertex2f(0.177f,-0.639f);
+                        glTexCoord2f(0,1);
+                    glVertex2f(-0.171f,-0.639f);
+                    glEnd();
+
+                    glBindTexture(GL_TEXTURE_2D, party6Sprite);
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0,0);
+                    glVertex2f(0.266f,-0.0538f);
+                        glTexCoord2f(1,0);
+                    glVertex2f(0.614f,-0.0538f);
+                        glTexCoord2f(1,1);
+                    glVertex2f(0.614f,-0.639f);
+                        glTexCoord2f(0,1);
+                    glVertex2f(0.266f,-0.639f);
+                    glEnd();
+
+
+
+
+                    break;
+
+                case POKEMON_SELECTOR:
+                    switch (slotSelected){
+                        case 1:
+                            party1 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando1+".png");
+                            party1Sprite = party1Sprite = Graphics.TextureLoader.loadTexture(party1);
+                        case 2:
+                            party2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando2+".png");
+                            party2Sprite = party2Sprite = Graphics.TextureLoader.loadTexture(party2);
+                        case 3:
+                            party3 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando3+".png");
+                            party3Sprite = party3Sprite = Graphics.TextureLoader.loadTexture(party3);
+                        case 4:
+                            party4 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando4+".png");
+                            party4Sprite = party4Sprite = Graphics.TextureLoader.loadTexture(party4);
+                        case 5:
+                            party5 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando5+".png");
+                            party5Sprite = party5Sprite = Graphics.TextureLoader.loadTexture(party5);
+                        case 6:
+                            party6 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando6+".png");
+                            party6Sprite = party6Sprite = Graphics.TextureLoader.loadTexture(party6);
+                    }
+
+
+                case EDITOR:
+                    TextureLoader.FullScreen(pokemon_editor);
+                    break;
+
+
+
+                case BATTLE_SELECT:
+                    TextureLoader.FullScreen(battle_select);
+                    break;
+
+
+                case BATTLE:
                     if (j == 802){
                         j=1;
                     } else {
@@ -148,19 +392,15 @@ public class Window {
                     BufferedImage bg = Graphics.TextureLoader.loadImage("src/Graphics/Backgrounds/Grass1.png");
                     int background = Graphics.TextureLoader.loadTexture(bg);
 
-                    BufferedImage image = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Back/"+j+".png");
+                    BufferedImage image = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Back/150.png");
                     int sprite = Graphics.TextureLoader.loadTexture(image);
 
                     BufferedImage image2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/646.png");
                     int spriteOpp = Graphics.TextureLoader.loadTexture(image2);
 
-                        glRectf(0, 0, 640, 480);
-
-
-
-                            if (i <= -0.2f){
-                                i += 0.02f;
-                            }
+                    if (pokemonAnim <= -0.2f){
+                        pokemonAnim += 0.02f;
+                    }
 
                     glBindTexture(GL_TEXTURE_2D, background);
                     glBegin(GL_QUADS);
@@ -177,13 +417,13 @@ public class Window {
                             glBindTexture(GL_TEXTURE_2D, sprite);
                             glBegin(GL_QUADS);
                             glTexCoord2f(1,0);
-                            glVertex2f(i,0.2f);
+                            glVertex2f(pokemonAnim,0.2f);
                             glTexCoord2f(1,1);
-                            glVertex2f(i,-0.5f);
+                            glVertex2f(pokemonAnim,-0.5f);
                             glTexCoord2f(0,1);
-                            glVertex2f(i-0.5f,-0.5f);
+                            glVertex2f(pokemonAnim-0.5f,-0.5f);
                             glTexCoord2f(0,0);
-                            glVertex2f(i-0.5f,0.2f);
+                            glVertex2f(pokemonAnim-0.5f,0.2f);
                             glEnd();
 
                             glBindTexture(GL_TEXTURE_2D, spriteOpp);
@@ -198,6 +438,9 @@ public class Window {
                             glVertex2f(0,0.6f);
                             glEnd();
                     break;
+
+
+
             }
             glfwSwapBuffers(window); // swap the color buffers
 
