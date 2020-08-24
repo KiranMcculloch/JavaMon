@@ -1,11 +1,11 @@
 package Graphics;
 
 import PokemonBasics.Main;
+import PokemonBasics.Pokemon;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
-
 import java.awt.image.BufferedImage;
 import java.nio.*;
 import static org.lwjgl.glfw.Callbacks.*;
@@ -19,12 +19,16 @@ import java.util.Random;
 public class Window {
     // The window handle
     private static long window;
+
+
     public static State state = State.INTRO;
     static DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
     static DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
     Random rg = new Random();
-    int rando1 = 1,rando2=2, rando3 =3 ,rando4=4,rando5=5,rando6=6;
-    int slotSelected = 1;
+    int rando1 = 1,rando2=2,rando3=3 ,rando4=4,rando5=5,rando6=6, slotSelected = 1;
+    static int title_screen,main_menu,pokemon_editor,team_builder,options,battle_select;
+    static int party1Sprite, party2Sprite,party3Sprite,party4Sprite,party5Sprite,party6Sprite;
+    static BufferedImage party1,party2,party3,party4,party5,party6;
 
 
     public enum State {
@@ -43,6 +47,8 @@ public class Window {
         }
         return false;
     }
+
+
     public static void mouseNormal(){
         glfwGetCursorPos(window, xBuffer, yBuffer);
         double mouseX = xBuffer.get(0);
@@ -71,6 +77,8 @@ public class Window {
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
 
+
+
         // Initialize GLFW. Most GLFW functions will not work before doing this.
         if ( !glfwInit() )
             throw new IllegalStateException("Unable to initialize GLFW");
@@ -97,12 +105,12 @@ public class Window {
                         state = State.MAIN_MENU;
                         break;
                     case TEAM_BUILDER:
-                        rando1 = rg.nextInt(802) +1;
-                        rando2 = rg.nextInt(802) +1;
-                        rando3 = rg.nextInt(802) +1;
-                        rando4 = rg.nextInt(802) +1;
-                        rando5 = rg.nextInt(802) +1;
-                        rando6 = rg.nextInt(802) +1;
+                        for (int i=0; i<6; i++){
+                            Main.party[i] = null;
+                            rando1 = rg.nextInt(802) +1;
+                            Main.addToParty(new Pokemon(rando1, 30, rando3, rando2, rando6, rando1, null, false));
+                        }
+                        System.out.println(Main.party[5].getID());
                         break;
                     case MAIN_MENU:
                         state = State.TEAM_BUILDER;
@@ -159,8 +167,11 @@ public class Window {
             );
         } // the stack frame is popped automatically
 
+
+
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
+
         // Enable v-sync
         glfwSwapInterval(1);
 
@@ -173,7 +184,56 @@ public class Window {
     }
 
 
+    public static void loadPartySprites(){
+        for (int i=0; i<6; i++){
+            if (Main.party[i] == null){
+                switch(i){
+                    case 0:
+                        party1 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+                        party1Sprite = TextureLoader.loadTexture(party1);
+                    case 1:
+                        party2 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+                        party2Sprite = TextureLoader.loadTexture(party2);
+                    case 2:
+                        party3 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+                        party3Sprite = TextureLoader.loadTexture(party3);
+                    case 3:
+                        party4 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+                        party4Sprite = TextureLoader.loadTexture(party4);
+                    case 4:
+                        party5 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+                        party5Sprite = TextureLoader.loadTexture(party5);
+                    case 5:
+                        party6 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+                        party6Sprite = TextureLoader.loadTexture(party6);
+                }
+            } else {
+                switch(i){
+                    case 0:
+                        party1 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Normal/Front/"+Main.party[0].getID()+".png");
+                        party1Sprite = party1Sprite = TextureLoader.loadTexture(party1);
+                    case 1:
+                        party2 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Normal/Front/"+Main.party[1].getID()+".png");
+                        party2Sprite = party2Sprite = TextureLoader.loadTexture(party2);
+                    case 2:
+                        party3 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Normal/Front/"+Main.party[2].getID()+".png");
+                        party3Sprite = party3Sprite = TextureLoader.loadTexture(party3);
+                    case 3:
+                        party4 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Normal/Front/"+Main.party[3].getID()+".png");
+                        party4Sprite = party4Sprite = TextureLoader.loadTexture(party4);
+                    case 4:
+                        party5 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Normal/Front/"+Main.party[4].getID()+".png");
+                        party5Sprite = party5Sprite = TextureLoader.loadTexture(party5);
+                    case 5:
+                        party6 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Normal/Front/"+Main.party[5].getID()+".png");
+                        party6Sprite = party6Sprite = TextureLoader.loadTexture(party6);
 
+                }
+            }
+
+        }
+
+    }
 
 
 
@@ -199,30 +259,31 @@ public class Window {
         float pokemonAnim = -1.0f;
         int j  = 1;
 
-        BufferedImage mm = Graphics.TextureLoader.loadImage("src/Graphics/mainmenu.png");
-        int main_menu = Graphics.TextureLoader.loadTexture(mm);
-        BufferedImage op = Graphics.TextureLoader.loadImage("src/Graphics/options.png");
-        int options = Graphics.TextureLoader.loadTexture(op);
-        BufferedImage ed = Graphics.TextureLoader.loadImage("src/Graphics/pokemoneditor.png");
-        int pokemon_editor = Graphics.TextureLoader.loadTexture(ed);
-        BufferedImage se = Graphics.TextureLoader.loadImage("src/Graphics/teambuilder.png");
-        int team_builder = Graphics.TextureLoader.loadTexture(se);
-        BufferedImage ti = Graphics.TextureLoader.loadImage("src/Graphics/title.png");
-        int title_screen = Graphics.TextureLoader.loadTexture(ti);
-        BufferedImage tr = Graphics.TextureLoader.loadImage("src/Graphics/tree.png");
-        int battle_select = Graphics.TextureLoader.loadTexture(tr);
-        BufferedImage party1 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
-        int party1Sprite = Graphics.TextureLoader.loadTexture(party1);
-        BufferedImage party2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
-        int party2Sprite = Graphics.TextureLoader.loadTexture(party2);
-        BufferedImage party3 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
-        int party3Sprite = Graphics.TextureLoader.loadTexture(party3);
-        BufferedImage party4 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
-        int party4Sprite = Graphics.TextureLoader.loadTexture(party4);
-        BufferedImage party5 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
-        int party5Sprite = Graphics.TextureLoader.loadTexture(party5);
-        BufferedImage party6 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/none.png");
-        int party6Sprite = Graphics.TextureLoader.loadTexture(party6);
+        BufferedImage mm = TextureLoader.loadImage("src/Graphics/mainmenu.png");
+        main_menu = TextureLoader.loadTexture(mm);
+        BufferedImage op = TextureLoader.loadImage("src/Graphics/options.png");
+        options = TextureLoader.loadTexture(op);
+        BufferedImage ed = TextureLoader.loadImage("src/Graphics/pokemoneditor.png");
+        pokemon_editor = TextureLoader.loadTexture(ed);
+        BufferedImage se = TextureLoader.loadImage("src/Graphics/teambuilder.png");
+        team_builder = TextureLoader.loadTexture(se);
+        BufferedImage ti = TextureLoader.loadImage("src/Graphics/title.png");
+        title_screen = TextureLoader.loadTexture(ti);
+        BufferedImage tr = TextureLoader.loadImage("src/Graphics/tree.png");
+        battle_select = TextureLoader.loadTexture(tr);
+        BufferedImage party1 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+        party1Sprite = TextureLoader.loadTexture(party1);
+        BufferedImage party2 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+        party2Sprite = TextureLoader.loadTexture(party2);
+        BufferedImage party3 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+        party3Sprite = TextureLoader.loadTexture(party3);
+        BufferedImage party4 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+        party4Sprite = TextureLoader.loadTexture(party4);
+        BufferedImage party5 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+        party5Sprite = TextureLoader.loadTexture(party5);
+        BufferedImage party6 = TextureLoader.loadImage("src/Graphics/Pokemon/none.png");
+        party6Sprite = TextureLoader.loadTexture(party6);
+
 
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
@@ -251,123 +312,39 @@ public class Window {
 
                 case TEAM_BUILDER:
 
-                    party1 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando1+".png");
-                    party1Sprite = party1Sprite = Graphics.TextureLoader.loadTexture(party1);
-
-                    party2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando2+".png");
-                    party2Sprite = party2Sprite = Graphics.TextureLoader.loadTexture(party2);
-
-                    party3 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando3+".png");
-                    party3Sprite = party3Sprite = Graphics.TextureLoader.loadTexture(party3);
-
-                    party4 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando4+".png");
-                    party4Sprite = party4Sprite = Graphics.TextureLoader.loadTexture(party4);
-
-                    party5 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando5+".png");
-                    party5Sprite = party5Sprite = Graphics.TextureLoader.loadTexture(party5);
-
-                    party6 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/"+rando6+".png");
-                    party6Sprite = party6Sprite = Graphics.TextureLoader.loadTexture(party6);
+                    loadPartySprites();
 
                     TextureLoader.FullScreen(team_builder);
 
-                    glBindTexture(GL_TEXTURE_2D, party1Sprite);
-                    glBegin(GL_QUADS);
-                        glTexCoord2f(0,0);
-                    glVertex2f(-0.607f,0.860f);
-                        glTexCoord2f(1,0);
-                    glVertex2f(-0.261f,0.860f);
-                        glTexCoord2f(1,1);
-                    glVertex2f(-0.261f,0.277f);
-                        glTexCoord2f(0,1);
-                    glVertex2f(-0.607f,0.277f);
-                    glEnd();
-
-                    glBindTexture(GL_TEXTURE_2D, party2Sprite);
-                    glBegin(GL_QUADS);
-                        glTexCoord2f(0,0);
-                    glVertex2f(-0.171f,0.860f);
-                        glTexCoord2f(1,0);
-                    glVertex2f(0.177f,0.860f);
-                        glTexCoord2f(1,1);
-                    glVertex2f(0.177f,0.277f);
-                        glTexCoord2f(0,1);
-                    glVertex2f(-0.171f,0.277f);
-                    glEnd();
-
-                    glBindTexture(GL_TEXTURE_2D, party3Sprite);
-                    glBegin(GL_QUADS);
-                        glTexCoord2f(0,0);
-                    glVertex2f(0.266f,0.860f);
-                        glTexCoord2f(1,0);
-                    glVertex2f(0.614f,0.860f);
-                        glTexCoord2f(1,1);
-                    glVertex2f(0.614f,0.277f);
-                        glTexCoord2f(0,1);
-                    glVertex2f(0.266f,0.277f);
-                    glEnd();
-
-                    glBindTexture(GL_TEXTURE_2D, party4Sprite);
-                    glBegin(GL_QUADS);
-                        glTexCoord2f(0,0);
-                    glVertex2f(-0.607f,-0.0538f);
-                        glTexCoord2f(1,0);
-                    glVertex2f(-0.261f,-0.0538f);
-                        glTexCoord2f(1,1);
-                    glVertex2f(-0.261f,-0.639f);
-                        glTexCoord2f(0,1);
-                    glVertex2f(-0.607f,-0.639f);
-                    glEnd();
-
-                    glBindTexture(GL_TEXTURE_2D, party5Sprite);
-                    glBegin(GL_QUADS);
-                        glTexCoord2f(0,0);
-                    glVertex2f(-0.171f,-0.0538f);
-                        glTexCoord2f(1,0);
-                    glVertex2f(0.177f,-0.0538f);
-                        glTexCoord2f(1,1);
-                    glVertex2f(0.177f,-0.639f);
-                        glTexCoord2f(0,1);
-                    glVertex2f(-0.171f,-0.639f);
-                    glEnd();
-
-                    glBindTexture(GL_TEXTURE_2D, party6Sprite);
-                    glBegin(GL_QUADS);
-                        glTexCoord2f(0,0);
-                    glVertex2f(0.266f,-0.0538f);
-                        glTexCoord2f(1,0);
-                    glVertex2f(0.614f,-0.0538f);
-                        glTexCoord2f(1,1);
-                    glVertex2f(0.614f,-0.639f);
-                        glTexCoord2f(0,1);
-                    glVertex2f(0.266f,-0.639f);
-                    glEnd();
-
-
-
+                    TextureLoader.displaySquare(party1Sprite,-0.613f,0.870f,0.350f);
+                    TextureLoader.displaySquare(party2Sprite,-0.177f,0.870f,0.350f);
+                    TextureLoader.displaySquare(party3Sprite,0.261f,0.870f,0.350f);
+                    TextureLoader.displaySquare(party4Sprite,-0.613f,-0.0438f,0.350f);
+                    TextureLoader.displaySquare(party5Sprite,-0.177f,-0.0438f,0.350f);
+                    TextureLoader.displaySquare(party6Sprite,0.261f,-0.0438f,0.350f);
 
                     break;
 
                 case POKEMON_SELECTOR:
                     switch (slotSelected){
                         case 1:
-                            party1 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando1+".png");
-                            party1Sprite = party1Sprite = Graphics.TextureLoader.loadTexture(party1);
+                            party1 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Front/"+rando1+".png");
+                            party1Sprite = party1Sprite = TextureLoader.loadTexture(party1);
                         case 2:
-                            party2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando2+".png");
-                            party2Sprite = party2Sprite = Graphics.TextureLoader.loadTexture(party2);
+                            party2 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Front/"+rando2+".png");
+                            party2Sprite = party2Sprite = TextureLoader.loadTexture(party2);
                         case 3:
-                            party3 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando3+".png");
-                            party3Sprite = party3Sprite = Graphics.TextureLoader.loadTexture(party3);
+                            party3 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Front/"+rando3+".png");
+                            party3Sprite = party3Sprite = TextureLoader.loadTexture(party3);
                         case 4:
-                            party4 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando4+".png");
-                            party4Sprite = party4Sprite = Graphics.TextureLoader.loadTexture(party4);
+                            party4 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Front/"+rando4+".png");
+                            party4Sprite = party4Sprite = TextureLoader.loadTexture(party4);
                         case 5:
-                            party5 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando5+".png");
-                            party5Sprite = party5Sprite = Graphics.TextureLoader.loadTexture(party5);
+                            party5 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Front/"+rando5+".png");
+                            party5Sprite = party5Sprite = TextureLoader.loadTexture(party5);
                         case 6:
-                            party6 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Front/"+rando6+".png");
-                            party6Sprite = party6Sprite = Graphics.TextureLoader.loadTexture(party6);
+                            party6 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Front/"+rando6+".png");
+                            party6Sprite = party6Sprite = TextureLoader.loadTexture(party6);
                     }
 
 
@@ -389,14 +366,14 @@ public class Window {
                         j++;
                     }
                     glColor4f(1, 1, 1, 0);
-                    BufferedImage bg = Graphics.TextureLoader.loadImage("src/Graphics/Backgrounds/Grass1.png");
-                    int background = Graphics.TextureLoader.loadTexture(bg);
+                    BufferedImage bg = TextureLoader.loadImage("src/Graphics/Backgrounds/Grass1.png");
+                    int background = TextureLoader.loadTexture(bg);
 
-                    BufferedImage image = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Back/150.png");
-                    int sprite = Graphics.TextureLoader.loadTexture(image);
+                    BufferedImage image = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Normal/Back/150.png");
+                    int sprite = TextureLoader.loadTexture(image);
 
-                    BufferedImage image2 = Graphics.TextureLoader.loadImage("src/Graphics/Sprites/Male/Normal/Front/646.png");
-                    int spriteOpp = Graphics.TextureLoader.loadTexture(image2);
+                    BufferedImage image2 = TextureLoader.loadImage("src/Graphics/Pokemon/Male/Normal/Front/646.png");
+                    int spriteOpp = TextureLoader.loadTexture(image2);
 
                     if (pokemonAnim <= -0.2f){
                         pokemonAnim += 0.02f;

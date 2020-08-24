@@ -148,6 +148,7 @@
       <root url="jar://$USER_HOME$/Desktop/lwjgl-release-3.2.3-custom/lwjgl-xxhash-sources.jar!/" />
       <root url="jar://$USER_HOME$/Desktop/lwjgl-release-3.2.3-custom/lwjgl-yoga-sources.jar!/" />
       <root url="jar://$USER_HOME$/Desktop/lwjgl-release-3.2.3-custom/lwjgl-zstd-sources.jar!/" />
+      <root url="file://$USER_HOME$/Desktop/JOML-CI-JOML-827f6ac.tar" />
     </SOURCES>
   </library>
 </component>

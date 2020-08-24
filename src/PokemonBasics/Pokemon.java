@@ -42,7 +42,16 @@ public class Pokemon {
         this.moveset[2] = new Move(move3);
         this.moveset[3] = new Move(move4);
         this.experience = (int) Math.pow(level,3.0);
-        this.gender = rGen.nextInt(3);
+        if (TemplatePokemon.pokemonList[dexNumber].genderRatio == -1){
+            this.gender = 0;
+        } else {
+            int k = rGen.nextInt(100);
+            if (k > TemplatePokemon.pokemonList[dexNumber].genderRatio){
+                this.gender = 2;
+            } else {
+                this.gender = 1;
+            }
+        }
         this.heldItem = item;
         this.isShiny = isShiny;
         this.fainted = false;
@@ -72,7 +81,16 @@ public class Pokemon {
         this.moveset[2] = new Move(move3);
         this.moveset[3] = new Move(move4);
         this.experience = (int) Math.pow(level,3.0);
-        this.gender = rGen.nextInt(3);
+        if (TemplatePokemon.pokemonList[dexNumber].genderRatio == -1){
+            this.gender = 0;
+        } else {
+            int k = rGen.nextInt(100);
+            if (k > TemplatePokemon.pokemonList[dexNumber].genderRatio){
+                this.gender = 2;
+            } else {
+                this.gender = 1;
+            }
+        }
         this.heldItem = item;
         this.isShiny = isShiny;
         this.fainted = false;
@@ -108,6 +126,14 @@ public class Pokemon {
     }
 
     public boolean isDead(){ return this.fainted; }
+
+    public int getGender(){
+        return this.gender;
+    }
+
+    public int getID(){
+        return this.id;
+    }
 
     public void addStatus(int status){
         if (this.status == 0){

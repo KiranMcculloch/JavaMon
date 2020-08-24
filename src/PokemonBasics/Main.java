@@ -6,8 +6,8 @@ import java.util.Date;
 
 
 public class Main {
-    static Pokemon[] party = new PokemonBasics.Pokemon[6];
-    static Item[] itemBag = new Item[950];
+    public static Pokemon[] party = new PokemonBasics.Pokemon[6];
+    public static Item[] itemBag = new Item[950];
     // [box][spot in box]
     // static Pokemon[][] storageSystem = new Pokemon[36][30];
     // public static int gameMode = 0;
@@ -54,6 +54,7 @@ public class Main {
         for(int i=0; i<6; i++){
             if (party[i] == null) {
                 party[i] = pokemon;
+                System.out.println("pokemon added in "+i+"th spot");
                 added = true;
             }
         }

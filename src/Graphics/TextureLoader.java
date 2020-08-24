@@ -1,10 +1,9 @@
 package Graphics;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.nio.file.Paths;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
+import org.lwjgl.stb.*;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -15,6 +14,8 @@ import org.lwjgl.opengl.GL12;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TextureLoader {
+
+
     private static final int BYTES_PER_PIXEL = 4;//3 for RGB, 4 for RGBA
     public static int loadTexture(BufferedImage image){
         int[] pixels = new int[image.getWidth() * image.getHeight()];
@@ -71,6 +72,21 @@ public class TextureLoader {
             System.out.println("uh oh");
         }
         return null;
+    }
+
+    public static void displaySquare(int texture, float xPos, float yPos, float size){
+        //-.607, .830
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0,0);
+            glVertex2f(xPos,yPos);
+        glTexCoord2f(1,0);
+            glVertex2f(xPos+size,yPos);
+        glTexCoord2f(1,1);
+            glVertex2f(xPos+size,yPos-(size*1.7f));
+        glTexCoord2f(0,1);
+            glVertex2f(xPos,yPos-(size*1.7f));
+        glEnd();
     }
 
     public static void FullScreen(int image){
